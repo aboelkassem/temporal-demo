@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalDemo.Worker", "TemporalDemo.Workflow\TemporalDemo.Worker.csproj", "{26E90271-2118-48DE-80A4-763BE7631F27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalDemo.Workflow", "TemporalDemo.Workflow\TemporalDemo.Workflow.csproj", "{26E90271-2118-48DE-80A4-763BE7631F27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalDemo.Web", "TemporalDemo.Web\TemporalDemo.Web.csproj", "{CEF213F2-34F1-4C25-AA47-953A5020E6F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalDemo.Web", "TemporalDemo.Web\TemporalDemo.Web.csproj", "{CEF213F2-34F1-4C25-AA47-953A5020E6F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
