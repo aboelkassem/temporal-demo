@@ -8,7 +8,6 @@ public record Purchase(string ItemID, string UserID);
 
 public class PurchaseActivities
 {
-    // See "Why the 'Ref' Pattern" below for an explanation of this
     public static readonly PurchaseActivities Ref = ActivityRefs.Create<PurchaseActivities>();
 
     public int Attempts { get; set; } = 0;
