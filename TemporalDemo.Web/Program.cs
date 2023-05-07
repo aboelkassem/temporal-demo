@@ -27,7 +27,7 @@ app.MapGet("/", async (Task<TemporalClient> clientTask, string? name) =>
     var handle = await client.StartWorkflowAsync(
         OneClickBuyWorkflow.Ref.RunAsync,
         new Purchase(ItemID: "item1", UserID: "user1"),
-        new(id: "purchase-workflow", taskQueue: TasksQueue.Purchase)
+        new(id: "process-order-number-90743812", taskQueue: TasksQueue.Purchase)
         {
             //RetryPolicy = new()
             //{
@@ -49,14 +49,14 @@ app.MapGet("/", async (Task<TemporalClient> clientTask, string? name) =>
     //await handle.CancelAsync();
 
     // We can query its status, even if the workflow is complete
-    var currentPurshaseStatus = await handle.QueryAsync(OneClickBuyWorkflow.Ref.CurrentStatus);
-    Console.WriteLine(currentPurshaseStatus);
+    var currentPurchaseStatus = await handle.QueryAsync(OneClickBuyWorkflow.Ref.CurrentStatus);
+    Console.WriteLine(currentPurchaseStatus);
 
     // We can also wait on the result (which for our example is the same as query)
     //status = await handle.GetResultAsync();
     //Console.WriteLine($"Purchase workflow result: {status}");
     
-    return currentPurshaseStatus;
+    return currentPurchaseStatus;
 });
 
 app.MapGet("/history", () =>

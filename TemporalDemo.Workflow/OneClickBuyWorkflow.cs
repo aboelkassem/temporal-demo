@@ -24,19 +24,19 @@ public class OneClickBuyWorkflow
 {
     public static readonly OneClickBuyWorkflow Ref = WorkflowRefs.Create<OneClickBuyWorkflow>();
 
-    private PurchaseStatusEnum currentStatus = PurchaseStatusEnum.Pending;
-    private Purchase? currentPurchase;
+    private PurchaseStatusEnum _currentStatus = PurchaseStatusEnum.Pending;
+    private Purchase? _currentPurchase;
 
     [WorkflowRun]
     public async Task<PurchaseStatusEnum> RunAsync(Purchase purchase)
     {
-        PurchaseStatusHelper.SetPurchaseStatus(currentStatus.ToString());
-        currentPurchase = purchase;
+        PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
+        _currentPurchase = purchase;
         
         // current status = pending
         await Workflow.ExecuteActivityAsync(
             PurchaseActivities.Ref.StartOrderProcess,
-            currentPurchase!,
+            _currentPurchase!,
             new() 
             { 
                 StartToCloseTimeout = TimeSpan.FromSeconds(90), // schedule a retry if the Activity function doesn't return within 90 seconds
@@ -60,13 +60,13 @@ public class OneClickBuyWorkflow
         if (!isExists)
         {
             // cancel the order
-            currentStatus = PurchaseStatusEnum.Cancelled;
-            return currentStatus;
+            _currentStatus = PurchaseStatusEnum.Cancelled;
+            return _currentStatus;
         }
 
         // current status = PendingPayment
-        currentStatus = PurchaseStatusEnum.PendingPayment;
-        PurchaseStatusHelper.SetPurchaseStatus(currentStatus.ToString());
+        _currentStatus = PurchaseStatusEnum.PendingPayment;
+        PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
         await Workflow.ExecuteActivityAsync(PurchaseActivities.Ref.CheckPayment, new()
         {
             StartToCloseTimeout = TimeSpan.FromSeconds(90),
@@ -79,25 +79,25 @@ public class OneClickBuyWorkflow
         });
 
         // current status = PendingShipping
-        currentStatus = PurchaseStatusEnum.PendingShipping;
-        PurchaseStatusHelper.SetPurchaseStatus(currentStatus.ToString());
+        _currentStatus = PurchaseStatusEnum.PendingShipping;
+        PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
         await Workflow.ExecuteActivityAsync(PurchaseActivities.Ref.ShipOrder, new()
         {
             StartToCloseTimeout = TimeSpan.FromSeconds(90),
         });
 
-        currentStatus = PurchaseStatusEnum.Completed;
-        PurchaseStatusHelper.SetPurchaseStatus(currentStatus.ToString());
+        _currentStatus = PurchaseStatusEnum.Completed;
+        PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
 
-        return currentStatus;
+        return _currentStatus;
     }
 
     [WorkflowSignal]
-    public async Task UpdatePurchaseAsync(Purchase purchase) => currentPurchase = purchase;
+    public async Task UpdatePurchaseAsync(Purchase purchase) => _currentPurchase = purchase;
 
     [WorkflowQuery]
-    public string CurrentStatus() => $"Current purchase status is {currentStatus}";
+    public string CurrentStatus() => $"Current purchase status is {_currentStatus}";
 
     [WorkflowQuery]
-    public Purchase GetCurrentPurchaseData() => currentPurchase;
+    public Purchase GetCurrentPurchaseData() => _currentPurchase;
 }

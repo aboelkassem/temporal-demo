@@ -7,13 +7,11 @@ using Microsoft.Extensions.Logging;
 namespace TemporalDemo.Worker;
 public sealed class PurchaseWorker : BackgroundService
 {
-    private readonly ILoggerFactory loggerFactory;
-    private readonly ILogger<PurchaseWorker> logger;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public PurchaseWorker(ILoggerFactory loggerFactory, ILogger<PurchaseWorker> logger)
+    public PurchaseWorker(ILoggerFactory loggerFactory)
     {
-        this.loggerFactory = loggerFactory;
-        this.logger = logger;
+        this._loggerFactory = loggerFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,7 +24,7 @@ public sealed class PurchaseWorker : BackgroundService
             await TemporalClient.ConnectAsync(new()
             {
                 TargetHost = "localhost:7233",
-                LoggerFactory = loggerFactory,
+                LoggerFactory = _loggerFactory,
             }),
             new(taskQueue: TasksQueue.Purchase)
             {
