@@ -33,6 +33,7 @@ public class OneClickBuyWorkflow
         PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
         _currentPurchase = purchase;
         
+        // ----------- Step 1
         // current status = pending
         await Workflow.ExecuteActivityAsync(
             PurchaseActivities.Ref.StartOrderProcess,
@@ -49,6 +50,7 @@ public class OneClickBuyWorkflow
                     }
             });
 
+        // ----------- Step 2 - Inventory checks
         // current status = CheckInventory
         var isExists = await Workflow.ExecuteActivityAsync(PurchaseActivities.Ref.CheckInventory,
             true, // Just for Demo: parameter to pass to the activity for if exists or not
@@ -64,6 +66,7 @@ public class OneClickBuyWorkflow
             return _currentStatus;
         }
 
+        // ----------- Step 3 - Payment checks
         // current status = PendingPayment
         _currentStatus = PurchaseStatusEnum.PendingPayment;
         PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
@@ -72,12 +75,15 @@ public class OneClickBuyWorkflow
             StartToCloseTimeout = TimeSpan.FromSeconds(90),
         });
 
+        // ----------- Step 4 - Fulfill order
         // FulfillOrder
         await Workflow.ExecuteActivityAsync(PurchaseActivities.Ref.FulfillOrder, new()
         {
             StartToCloseTimeout = TimeSpan.FromSeconds(90),
         });
 
+
+        // ----------- Step 5 - Shipping
         // current status = PendingShipping
         _currentStatus = PurchaseStatusEnum.PendingShipping;
         PurchaseStatusHelper.SetPurchaseStatus(_currentStatus.ToString());
