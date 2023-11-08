@@ -26,17 +26,15 @@ public sealed class PurchaseWorker : BackgroundService
                 TargetHost = "localhost:7233",
                 LoggerFactory = _loggerFactory,
             }),
-            new(taskQueue: TasksQueue.Purchase)
-            {
-                Activities = { 
-                    activities.StartOrderProcess, 
-                    activities.CheckPayment, 
-                    activities.CheckInventory, 
-                    activities.FulfillOrder, 
-                    activities.ShipOrder },
-                
-                Workflows = { typeof(OneClickBuyWorkflow) },
-            });
+            new TemporalWorkerOptions(taskQueue: TasksQueue.Purchase)
+                .AddActivity(activities.StartOrderProcess)
+                .AddActivity(activities.CheckPayment)
+                .AddActivity(activities.CheckInventory)
+                .AddActivity(activities.FulfillOrder)
+                .AddActivity(activities.ShipOrder)
+                //.AddAllActivities(typeof(OneClickBuyWorkflow))
+                .AddWorkflow<OneClickBuyWorkflow>()
+            );
         
         // Run worker until cancelled
         Console.WriteLine("Running worker");

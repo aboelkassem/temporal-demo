@@ -8,8 +8,6 @@ public record Purchase(string ItemID, string UserID);
 
 public class PurchaseActivities
 {
-    public static readonly PurchaseActivities Ref = ActivityRefs.Create<PurchaseActivities>();
-
     public int Attempts { get; set; } = 0;
 
     [Activity]
@@ -17,6 +15,7 @@ public class PurchaseActivities
     {
         PurchaseStatusHelper.SetPurchaseStatus(PurchaseStatusEnum.Initiated.ToString());
         Console.WriteLine("Order initiated");
+        // business order
     }
 
     [Activity]
@@ -32,7 +31,7 @@ public class PurchaseActivities
         {
             // Throw an exception
             Attempts += 1;
-            await Task.Delay(1000);
+            Thread.Sleep(10000);
             PurchaseStatusHelper.SetPurchaseStatus(PurchaseStatusEnum.PaymentDeclined.ToString());
             throw new ApplicationFailureException($"Payment failed in attempt {Attempts}", nonRetryable: false);
         }

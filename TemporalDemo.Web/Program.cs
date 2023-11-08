@@ -1,6 +1,7 @@
 using Temporalio.Client;
 using TemporalDemo.Worker;
 using TemporalDemo.Workflows;
+using Temporalio.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,8 @@ app.MapGet("/", async (Task<TemporalClient> clientTask, string? name) =>
 
     // Start a workflow
     var handle = await client.StartWorkflowAsync(
-        OneClickBuyWorkflow.Ref.RunAsync,
-        new Purchase(ItemID: "item1", UserID: "user1"),
-        new(id: "process-order-number-90743812", taskQueue: TasksQueue.Purchase)
+        (OneClickBuyWorkflow wf) => wf.RunAsync(new("item1", "user1")),
+        new(id: "process-order-number-90743818", taskQueue: TasksQueue.Purchase)
         {
             //RetryPolicy = new()
             //{
@@ -42,14 +42,14 @@ app.MapGet("/", async (Task<TemporalClient> clientTask, string? name) =>
 
     // We can update the purchase if we want
     await handle.SignalAsync(
-        OneClickBuyWorkflow.Ref.UpdatePurchaseAsync,
-        new Purchase(ItemID: "item2", UserID: "user1"));
+        (OneClickBuyWorkflow wf) => wf.UpdatePurchaseAsync(new("item2", "user1")));
 
     // We can cancel it if we want
     //await handle.CancelAsync();
 
     // We can query its status, even if the workflow is complete
-    var currentPurchaseStatus = await handle.QueryAsync(OneClickBuyWorkflow.Ref.CurrentStatus);
+    var currentPurchaseStatus = await handle
+                        .QueryAsync((OneClickBuyWorkflow wf) => wf.CurrentStatus());
     Console.WriteLine(currentPurchaseStatus);
 
     // We can also wait on the result (which for our example is the same as query)
