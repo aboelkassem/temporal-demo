@@ -1,24 +1,29 @@
 using Temporalio.Client;
 using TemporalDemo.Worker;
 using TemporalDemo.Workflows;
+using Temporalio.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSimpleConsole().SetMinimumLevel(LogLevel.Information);
 
-var connection = await TemporalConnection.ConnectAsync(new TemporalConnectionOptions("localhost:7233"));
-builder.Services.AddSingleton<ITemporalClient>(provider => new TemporalClient(connection, new()
-{
-    LoggerFactory = provider.GetRequiredService<ILoggerFactory>(),
-}));
+builder.Services.AddSingleton(ctx =>
+    TemporalClient.ConnectAsync(new()
+    {
+        TargetHost = "localhost:7233",
+        LoggerFactory = ctx.GetRequiredService<ILoggerFactory>(),
+    }));
 
 // start temporal workers
 builder.Services.AddHostedService<PurchaseWorker>();
 
 var app = builder.Build();
 
-app.MapGet("/", async (ITemporalClient client, string? name) =>
+app.MapGet("/", async (Task<TemporalClient> clientTask, string? name) =>
 {
+    
+    var client = await clientTask;
+
     // Start a workflow
     var handle = await client.StartWorkflowAsync(
         (OneClickBuyWorkflow wf) => wf.RunAsync(new("item1", "user1")),
